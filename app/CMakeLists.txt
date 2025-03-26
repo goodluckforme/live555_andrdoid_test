@@ -18,7 +18,6 @@
 
  message(STATUS "CXX_LIB_PATH: ${CXX_LIB_PATH}")
 
- message(STATUS "CXX_LIB_PATH:88888888888888888888888888888888")
  add_library(BasicUsageEnvironment
          SHARED
          IMPORTED)

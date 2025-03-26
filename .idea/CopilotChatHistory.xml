@@ -4,6 +4,12 @@
     <option name="conversations">
       <list>
         <Conversation>
+          <option name="createTime" value="1742953206049" />
+          <option name="id" value="0195d01b5121737c8bb4697ac21650b3" />
+          <option name="title" value="新对话 2025年3月26日 09:40:06" />
+          <option name="updateTime" value="1742953206049" />
+        </Conversation>
+        <Conversation>
           <option name="createTime" value="1742890836472" />
           <option name="id" value="0195cc63a1f870a2911da35ed84d461b" />
           <option name="title" value="Java 冒泡排序" />
@@ -18,9 +24,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc64d5537ed39fad5621712ab746" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc64d553734c98ac88f3392b5a86" />
                 <option name="question" value="Qzez 冒泡排序" />
                 <option name="rating" value="UNRATED" />
@@ -49,9 +52,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc6b8036766b8602c0c9b791678f" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc6b8036717cbd2ee58635e1adf1" />
                 <option name="question" value="#Urov:NzrmZxgrergb.pg 写一个 点击事件" />
                 <option name="rating" value="UNRATED" />
@@ -60,18 +60,7 @@
                 </option>
                 <option name="status" value="SUCCESS" />
                 <option name="variables">
-                  <list>
-                    <FileVariable>
-                      <option name="endOffset" value="21" />
-                      <option name="identifierHash" value="VARIABLE_d3bde46145308b6039767f05c814b8633fa6ad587f12b6bc115fad2daca9e420" />
-                      <option name="selectedPlaceHolder">
-                        <Object />
-                      </option>
-                      <option name="selectedVariable">
-                        <Object />
-                      </option>
-                    </FileVariable>
-                  </list>
+                  <list />
                 </option>
               </Turn>
               <Turn>
@@ -83,9 +72,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc7eff3779fc9fd4aef4536428ce" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc7eff377560a86ae4225ecbed6d" />
                 <option name="question" value="yfgglm 宽高设置下" />
                 <option name="rating" value="UNRATED" />
@@ -117,9 +103,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc7fe1cf7806a1b044bb73f59c34" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc7fe1cf78829bd3f61e7f49842a" />
                 <option name="question" value="#Urov:NzrmZxgrergb.pg  写一个yfgglm 要求有宽高" />
                 <option name="rating" value="UNRATED" />
@@ -128,18 +111,7 @@
                 </option>
                 <option name="status" value="SUCCESS" />
                 <option name="variables">
-                  <list>
-                    <FileVariable>
-                      <option name="endOffset" value="21" />
-                      <option name="identifierHash" value="VARIABLE_d3bde46145308b6039767f05c814b8633fa6ad587f12b6bc115fad2daca9e420" />
-                      <option name="selectedPlaceHolder">
-                        <Object />
-                      </option>
-                      <option name="selectedVariable">
-                        <Object />
-                      </option>
-                    </FileVariable>
-                  </list>
+                  <list />
                 </option>
               </Turn>
               <Turn>
@@ -176,9 +148,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc821dc0748fbb0a506f1b4b5ccc" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc821dc07d20873f52ee44a2aead" />
                 <option name="question" value="ezo Wrnnvm_2wk = 2.wk  模仿这个写一个8到899wl的变脸" />
                 <option name="rating" value="UNRATED" />
@@ -224,9 +193,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc82fdb17c4dbd06a987a52576d9" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc82fdb17c13ac56fe4f45e7eefa" />
                 <option name="question" value="打个比方 ezo Wrnnvm_8wk = 8.wk ezo Wrnnvm_7wk = 7.wk 这样生成8到899wk的成员" />
                 <option name="rating" value="UNRATED" />
@@ -272,9 +238,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195cc834e397104888ceb58f9a72fb6" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195cc834e3970f988dc9e82469e2411" />
                 <option name="question" value="全部生成出来" />
                 <option name="rating" value="UNRATED" />
@@ -320,9 +283,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195ccb1d1077dc3bf82304f63efb403" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195ccb1d10774049fe01360098443e3" />
                 <option name="question" value="&#10;@Xlnklhzyov&#10;ufm Tivvgrmt(mznv: Hgirmt, nlwrurvi: Nlwrurvi = Nlwrurvi) {&#10;    Gvcg(&#10;        gvcg = &quot;Svool $mznv!&quot;,&#10;        nlwrurvi = nlwrurvi&#10;    )&#10;    Yfgglm(&#10;        lmXorxp = { lmYfgglmXorxp() }, // 点击事件处理函数&#10;        nlwrurvi = Nlwrurvi&#10;            .hrav(Wrnnvm_19wk, Wrnnvm_78wk) // 设置按钮的宽度和高度&#10;            .kzwwrmt(Wrnnvm_3wk) // 按钮内边距&#10;    ) {&#10;        Gvcg(&quot;Xorxp Nv&quot;) // 按钮文本&#10;    }&#10;}&#10;  如何获取xlmgvcg" />
                 <option name="rating" value="UNRATED" />
@@ -369,9 +329,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195ccb4995074c6a071d197993262f0" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195ccb4995073c1a0cdbfbd9612a5ba" />
                 <option name="question" value="Gvcg 加入一个点击事件" />
                 <option name="rating" value="UNRATED" />
@@ -417,9 +374,6 @@
                 </option>
                 <option name="command" value="normal" />
                 <option name="conversationId" value="0195ccd00001753faf209a6d80f25a51" />
-                <option name="historyDocumentMap">
-                  <map />
-                </option>
                 <option name="messageId" value="0195ccd000017413bf650aa9627fd4b9" />
                 <option name="question" value="&#10;vcgvim &quot;X&quot; QMRVCKLIG rmg QMRXZOO Qzez_xln_nj_jighkxorvmg_NzrmZxgrergb_99975Xlnkzmrlm_hgzig&#10;        (QMRVme *vme, qlyqvxg xozaa, qhgirmt urovMznv_) {&#10;    xlmhg xszi *rmkfgUrovmznv = vme-&gt;TvgHgirmtFGUXszih(urovMznv_, 9);&#10;    UROV *urov = ulkvm(rmkfgUrovmznv, &quot;iy&quot;);&#10;    ru (!urov) {&#10;        OLTV(&quot;xlfowm'g lkvm %h&quot;, rmkfgUrovmznv);&#10;        ivgfim -8;&#10;    }&#10;    uxolhv(urov);&#10;&#10;    GzhpHxsvwfovi *hxsvwfovi = YzhrxGzhpHxsvwfovi::xivzgvMvd();&#10;    FhztvVmerilmnvmg *vme_ = YzhrxFhztvVmerilmnvmg::xivzgvMvd(*hxsvwfovi);&#10;    FhviZfgsvmgrxzgrlmWzgzyzhv *zfgsWY = MFOO;&#10;    // Xivzgv gsv IGHK hvievi:&#10;    IGHKHvievi *ighkHvievi = IGHKHvievi::xivzgvMvd(*vme_, 1445, zfgsWY);&#10;    ru (ighkHvievi == MFOO) {&#10;        OLTV(&quot;Uzrovw gl xivzgv IGHK hvievi: %h&quot;, vme_-&gt;tvgIvhfogNht());&#10;        ivgfim -8;&#10;    }&#10;    xszi xlmhg *wvhxirkgrlmHgirmt = &quot;Hvhhrlm hgivznvw yb \&quot;gvhgLmWvnzmwIGHKHvievi\&quot;&quot;;&#10;    xszi xlmhg *hgivznMznv = &quot;nbhgivzn&quot;;&#10;    HvieviNvwrzHvhhrlm *hnh = HvieviNvwrzHvhhrlm::xivzgvMvd(*vme_, hgivznMznv, hgivznMznv, wvhxirkgrlmHgirmt);&#10;    hnh-&gt;zwwHfyhvhhrlm(S735ErwvlUrovHvieviNvwrzHfyhvhhrlm::xivzgvMvd(*vme_, rmkfgUrovmznv, Gifv));&#10;    ighkHvievi-&gt;zwwHvieviNvwrzHvhhrlm(hnh);&#10;&#10;    fio = ighkHvievi-&gt;ighkFIO(hnh);&#10;&#10;    xlmhg xszi *olxzoRK = tvgOlxzoRK();&#10;    ru (olxzoRK) {&#10;        xszi fioh[899];&#10;        hmkirmgu(fio, hravlu(fioh), &quot;ighk://%h:1445/%h&quot;, olxzoRK, hgivznMznv);&#10;        OLTV(&quot;%h hgivzn, uiln gsv urov %h &quot;, hgivznMznv, rmkfgUrovmznv);&#10;        OLTV(&quot;Kozb gsrh hgivzn fhrmt gsv FIO: %h\m&quot;, fioh);&#10;    } vohv {&#10;        OLTV(&quot;Uzrovw gl tvg olxzo RK zwwivhh&quot;);&#10;    }&#10;    OLTV(&quot;%h fio &quot;,fio);&#10;//    wvovgv[] fio;&#10;&#10;    vme-&gt;IvovzhvHgirmtFGUXszih(urovMznv_, rmkfgUrovmznv);&#10;    vme_-&gt;gzhpHxsvwfovi().wlVevmgOllk(); // wlvh mlg ivgfim&#10;}  如何做到循环播放" />
                 <option name="rating" value="UNRATED" />
