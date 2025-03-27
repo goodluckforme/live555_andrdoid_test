@@ -2,7 +2,6 @@ package com.mq.qrtspclient
 
 import android.annotation.SuppressLint
 import android.graphics.SurfaceTexture
-import android.media.MediaCodec
 import android.os.Bundle
 import android.util.Log
 import android.view.Surface
@@ -29,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
+import com.mq.qrtspclient.PpsSpsHelper.makeSpsPps
 import com.mq.qrtspclient.ui.theme.Dimmen_20dp
 import com.mq.qrtspclient.ui.theme.Dimmen_8dp
 import com.mq.qrtspclient.ui.theme.QRtspClientTheme
@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.lang.Thread.sleep
-import java.nio.ByteBuffer
 
 
 class MainActivity : ComponentActivity() {
@@ -120,18 +119,20 @@ fun VideoPlayerScreen() {
             onClick = {
                 GlobalScope.launch(Dispatchers.IO) {
                     RTSPClient.startStream(
-                        "rtsp://77.110.228.219/axis-media/media.amp",
+//                        "rtsp://77.110.228.219/axis-media/media.amp",
 //                        "rtsp://192.168.3.54:8554/v",
-//                        "rtsp://192.168.3.54:8554/mystream",
+                        "rtsp://10.171.16.196:8554/mystream",
+//                        "rtsp://192.168.42.1:8554/video",
                         object : FrameCallback {
-                            override fun onFrameReceived(data: ByteArray?, timestampMs: Long) {
-                                Log.d("maqi", "data[0]  :${data!!.size} timestampMs  ：${timestampMs} ")
-                                Log.d("maqi", "data[0]  ~data[10] ${ data[0]},${ data[1]},${ data[2]},${ data[3]}")
-//                                val ret = PpsSps.makeSpsPps(data)
-                                decoder!!.decodeFrame(data, 0, data.size, System.nanoTime() / 1000)
+                            override fun onFrameReceived(frameData: ByteArray, timestampMs: Long) {
+                                Log.d("maqi", "data[0]  :${frameData.size} timestampMs  ：${timestampMs} ")
+                                Log.d("maqi", "data[0]  ~data[10] ${frameData[0]},${frameData[1]},${frameData[2]},${frameData[3]}")
+                                val data =makeSpsPps(frameData)
+                                Log.d("maqi", "data[0]  ~data[10] ${data[0]},${data[1]},${data[2]},${data[3]}")
+                                decoder!!.decodeFrame(data, 0, data.size, timestampMs)
                             }
 
-                            override fun onError(code: Int, message: String?) {
+                            override fun infoCallBack(code: Int, message: String?) {
                                 Log.d("maqi", "code  :${code} message  ：${message} ")
                             }
                         })
@@ -203,7 +204,7 @@ fun decodeH264File(filePath: String, decoder: H264Decoder, frameRate: Int = 25) 
             sleep(frameInterval - elapsedTime)
         }
         Log.d("maqi", "buffer[0]  :${buffer!!.size} ")
-        Log.d("maqi", "buffer[0]  ~buffer[10] ${ buffer[0]},${ buffer[1]},${ buffer[2]},${ buffer[3]}")
+        Log.d("maqi", "buffer[0]  ~buffer[10] ${buffer[0]},${buffer[1]},${buffer[2]},${buffer[3]}")
         decoder.decodeFrame(buffer, 0, bytesRead, System.nanoTime() / 1000)
         lastDecodeTime = System.currentTimeMillis()
     }
@@ -221,7 +222,7 @@ fun H264PlayerView(onSurfaceAvailable: (Surface) -> Unit, onSurfaceDestroyed: (S
                     override fun onSurfaceTextureAvailable(
                         surfaceTexture: SurfaceTexture,
                         videoWidth: Int,
-                        videoHeight: Int
+                        videoHeight: Int,
                     ) {
                         updateLayoutParams<ViewGroup.LayoutParams> {
                             width = resources.displayMetrics.widthPixels
@@ -237,7 +238,7 @@ fun H264PlayerView(onSurfaceAvailable: (Surface) -> Unit, onSurfaceDestroyed: (S
                     override fun onSurfaceTextureSizeChanged(
                         surface: SurfaceTexture,
                         width: Int,
-                        height: Int
+                        height: Int,
                     ) {
                         Logger.d("maqi", "width:" + width)
                         Logger.d("maqi", "height:" + height)

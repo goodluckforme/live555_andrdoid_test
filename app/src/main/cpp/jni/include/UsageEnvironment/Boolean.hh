@@ -25,7 +25,7 @@ typedef bool Boolean;
 typedef unsigned char Boolean;
 #ifndef __MSHTML_LIBRARY_DEFINED__
 #ifndef False
-const Boolean False = 0;
+unsigned char False = 0;
 #endif
 #ifndef True
 const Boolean True = 1;

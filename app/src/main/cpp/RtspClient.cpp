@@ -9,7 +9,11 @@
 extern "C" JNIEXPORT void JNICALL
 Java_com_mq_qrtspclient_RTSPClient_startStream(
         JNIEnv *env, jclass thiz, jstring j_rtsp_url, jobject callback) {
+    REQUEST_STREAMING_OVER_TCP = true;//初始化为tcp
 
+    isrunning = true;
+    has_sps = false;
+    has_pps = false;
     // 获取 JavaVM
     env->GetJavaVM(&g_jvm);
     LOGE("startStream :======================================1");
@@ -26,8 +30,7 @@ Java_com_mq_qrtspclient_RTSPClient_startStream(
     UsageEnvironment *envir = BasicUsageEnvironment::createNew(*scheduler);
     LOGE("startStream :======================================4");
     // 创建RTSP客户端
-    rtspClient = ourRTSPClient::createNew(*envir, rtsp_url, RTSP_CLIENT_VERBOSITY_LEVEL,
-                                          "RTSPClient");
+    rtspClient = ourRTSPClient::createNew(*envir, rtsp_url, RTSP_CLIENT_VERBOSITY_LEVEL, NULL);
     LOGE("startStream :======================================5");
 
     // 设置回调到客户端状态
@@ -59,6 +62,12 @@ void continueAfterDESCRIBE(RTSPClient *rtspClient, int resultCode, char *resultS
         LOGE("startStream :======================================12");
         char *const sdpDescription = resultString;
 //        env << *rtspClient << "Got a SDP description:\n" << sdpDescription << "\n";
+
+        std::string tmp = "Got a SDP description:\n" + std::string(resultString);
+        sps_pps_size = get_sps_pps_from_sdp(resultString, sps_pps_from_sdp);
+        LOGE("SDP description： =============================== sps_pps_size:%d", sps_pps_size);
+//        JNIEnv *pEnv = getJNIEnv();
+//        infoCallBack(102, charToJstring(pEnv, tmp.c_str()));
 
         // Create a media session object from this SDP description:
         scs.session = MediaSession::createNew(env, sdpDescription);
@@ -92,11 +101,13 @@ void continueAfterPLAY(RTSPClient *rtspClient, int resultCode, char *resultStrin
     do {
         UsageEnvironment &env = rtspClient->envir(); // alias
         StreamClientState &scs = ((ourRTSPClient *) rtspClient)->scs; // alias
-
+        LOGE("startStream :======================================133_1  resultCode %d ", resultCode);
+        LOGE("RTSP PLAY resultCode = %d, error = %s", resultCode, resultString);
         if (resultCode != 0) {
 //            env << *rtspClient << "Failed to start playing session: " << resultString << "\n";
             break;
         }
+
 
         // Set a timer to be handled at the end of the stream's expected duration (if the stream does not already signal its end
         // using a RTCP "BYE").  This is optional.  If, instead, you want to keep the stream active - e.g., so you can later
@@ -110,12 +121,13 @@ void continueAfterPLAY(RTSPClient *rtspClient, int resultCode, char *resultStrin
                                                                           (TaskFunc *) streamTimerHandler,
                                                                           rtspClient);
         }
+        LOGE("startStream :======================================133_2  scs.duration %d ", scs.duration);
 
 //        env << *rtspClient << "Started playing session";
         if (scs.duration > 0) {
-            env << " (for up to " << scs.duration << " seconds)";
+//            env << " (for up to " << scs.duration << " seconds)";
         }
-        env << "...\n";
+//        env << "...\n";
 
         success = True;
     } while (0);
@@ -153,8 +165,7 @@ void subsessionAfterPlaying(void *clientData) {
 void openURL(UsageEnvironment &env, char const *progName, char const *rtspURL) {
     // Begin by creating a "RTSPClient" object.  Note that there is a separate "RTSPClient" object for each stream that we wish
     // to receive (even if more than stream uses the same "rtsp://" URL).
-    RTSPClient *rtspClient = ourRTSPClient::createNew(env, rtspURL, RTSP_CLIENT_VERBOSITY_LEVEL,
-                                                      progName);
+    RTSPClient *rtspClient = ourRTSPClient::createNew(env, rtspURL, RTSP_CLIENT_VERBOSITY_LEVEL, progName);
     if (rtspClient == NULL) {
 //        env << "Failed to create a RTSP client for URL \"" << rtspURL << "\": " << env.getResultMsg() << "\n";
         return;
@@ -265,16 +276,18 @@ void setupNextSubsession(RTSPClient *rtspClient) {
         return;
     }
 
+    LOGE("startStream :======================================113_0 scs.session->absStartTime() %d", scs.session->absStartTime() != NULL);
+
     // We've finished setting up all of the subsessions.  Now, send a RTSP "PLAY" command to start the streaming:
     if (scs.session->absStartTime() != NULL) {
+        LOGE("startStream :======================================113");
         // Special case: The stream is indexed by 'absolute' time, so send an appropriate "PLAY" command:
         rtspClient->sendPlayCommand(*scs.session, continueAfterPLAY, scs.session->absStartTime(),
                                     scs.session->absEndTime());
-        LOGE("startStream :======================================113");
     } else {
         scs.duration = scs.session->playEndTime() - scs.session->playStartTime();
+        LOGE("startStream :======================================114 scs.duratio %d  scs.session ", scs.duration,scs.session->name());
         rtspClient->sendPlayCommand(*scs.session, continueAfterPLAY);
-        LOGE("startStream :======================================114");
     }
 }
 
@@ -327,7 +340,10 @@ void continueAfterSETUP(RTSPClient *rtspClient, int resultCode, char *resultStri
 // JNI 停止解码函数
 extern "C" JNIEXPORT void JNICALL
 Java_com_mq_qrtspclient_RTSPClient_stopStream(JNIEnv *env, jclass thiz) {
-    shutdownStream(rtspClient, 1);
+    if (isrunning) {
+        runningFlag = 1;
+        isrunning = false;
+    }
     LOGE("stopStream: Streaming stopped successfully");
 }
 
@@ -368,12 +384,6 @@ void shutdownStream(RTSPClient *rtspClient, int exitCode) {
     // Note that this will also cause this stream's "StreamClientState" structure to get reclaimed.
     LOGE("startStream :======================================21 rtspClientCount  %d",
          rtspClientCount);
-    if (--rtspClientCount == 0) {
-        // The final stream has ended, so exit the application now.
-        // (Of course, if you're embedding this code into your own application, you might want to comment this out,
-        // and replace it with "eventLoopWatchVariable = 1;", so that we leave the LIVE555 event loop, and continue running "main()".)
-        return;
-    }
 }
 
 
@@ -436,6 +446,7 @@ extern "C" JNIEXPORT int JNICALL Java_com_mq_qrtspclient_RTSPClient_start
 
     env->ReleaseStringUTFChars(fileName_, inputFilename);
     env_->taskScheduler().doEventLoop(); // does not return
+
 }
 
 

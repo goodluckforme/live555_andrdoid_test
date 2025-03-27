@@ -25,18 +25,4 @@ object RTSPClient {
         System.loadLibrary("rtspclient")  // 加载生成的 .so 库
     }
 
-    private var mPpsSps = ByteArray(0)
-    fun makeSpsPps(outData: ByteArray) {
-        // 记录pps和sps
-        var outData = outData
-        if (outData[0].toInt() == 0 && outData[1].toInt() == 0 && outData[2].toInt() == 1 && outData[3].toInt() and 0x1f == 7 || outData[0].toInt() == 0 && outData[1].toInt() == 0 && outData[2].toInt() == 0 && outData[3].toInt() == 1 && outData[4].toInt() and 0x1f == 7) {
-            mPpsSps = outData
-        } else if (outData[0].toInt() == 0 && outData[1].toInt() == 0 && outData[2].toInt() == 1 && outData[3].toInt() and 0x1f == 5 || outData[0].toInt() == 0 && outData[1].toInt() == 0 && outData[2].toInt() == 0 && outData[3].toInt() == 1 && outData[4].toInt() and 0x1f == 5) {
-            // 在关键帧前面加上pps和sps数据
-            val data = ByteArray(mPpsSps.size + outData.size)
-            System.arraycopy(mPpsSps, 0, data, 0, mPpsSps.size)
-            System.arraycopy(outData, 0, data, mPpsSps.size, outData.size)
-            outData = data
-        }
-    }
 }
