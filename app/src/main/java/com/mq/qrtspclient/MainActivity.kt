@@ -2,6 +2,7 @@ package com.mq.qrtspclient
 
 import android.annotation.SuppressLint
 import android.graphics.SurfaceTexture
+import android.media.MediaCodec
 import android.os.Bundle
 import android.util.Log
 import android.view.Surface
@@ -12,6 +13,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -27,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
+import com.mq.qrtspclient.ui.theme.Dimmen_20dp
 import com.mq.qrtspclient.ui.theme.Dimmen_8dp
 import com.mq.qrtspclient.ui.theme.QRtspClientTheme
 import kotlinx.coroutines.Dispatchers
@@ -35,20 +38,11 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
+import java.lang.Thread.sleep
+import java.nio.ByteBuffer
 
 
 class MainActivity : ComponentActivity() {
-    companion object {
-        init {
-            System.loadLibrary("rtspclient")  // 加载生成的 .so 库
-        }
-
-        // 获取版本相关信息
-        external fun getVersion()
-        external fun start(filename: String): Int
-        external fun getUrl(): String
-
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,23 +53,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    Greeting()
                 }
             }
         }
-        getVersion()
+        RTSPClient.getVersion()
     }
-
-    fun getScreenWidth(): Int {
-        val displayMetrics = resources.displayMetrics
-        return displayMetrics.widthPixels
-    }
-
 }
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Greeting() {
     val context = LocalContext.current
     var url by mutableStateOf("getUrl")
 //    val view = LocalView.current
@@ -91,7 +79,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                     Log.d("maqi", "Button clicked!")
                     val file = File(context.getExternalFilesDir(null), "test.h264")
                     Log.d("maqi", "file " + file.path)
-                    val ret = MainActivity.start(file.absolutePath)
+                    val ret = RTSPClient.start(file.absolutePath)
                     Log.d("maqi", "start  ret:$ret")
                 }.start()
             },
@@ -104,7 +92,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         Button(
             onClick = {
                 MainScope().launch {
-                    url = MainActivity.getUrl()
+                    url = RTSPClient.getUrl()
                     Log.d("maqi", "url  :$url")
                 }
             },
@@ -113,6 +101,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         ) {
             Text(url)
         }
+
 
         VideoPlayerScreen()
     }
@@ -130,9 +119,47 @@ fun VideoPlayerScreen() {
         Button(
             onClick = {
                 GlobalScope.launch(Dispatchers.IO) {
+                    RTSPClient.startStream(
+                        "rtsp://77.110.228.219/axis-media/media.amp",
+//                        "rtsp://192.168.3.54:8554/v",
+//                        "rtsp://192.168.3.54:8554/mystream",
+                        object : FrameCallback {
+                            override fun onFrameReceived(data: ByteArray?, timestampMs: Long) {
+                                Log.d("maqi", "data[0]  :${data!!.size} timestampMs  ：${timestampMs} ")
+                                Log.d("maqi", "data[0]  ~data[10] ${ data[0]},${ data[1]},${ data[2]},${ data[3]}")
+//                                val ret = PpsSps.makeSpsPps(data)
+                                decoder!!.decodeFrame(data, 0, data.size, System.nanoTime() / 1000)
+                            }
+
+                            override fun onError(code: Int, message: String?) {
+                                Log.d("maqi", "code  :${code} message  ：${message} ")
+                            }
+                        })
+                }
+            },
+            modifier = Modifier
+                .padding(Dimmen_8dp)
+        ) {
+            Text("先 start开启服务，然后点此获取流数据")
+        }
+
+        Button(
+            onClick = {
+                GlobalScope.launch(Dispatchers.IO) {
+                    RTSPClient.stopStream()
+                }
+            },
+            modifier = Modifier
+                .padding(Dimmen_8dp)
+        ) {
+            Text("销毁")
+        }
+        Button(
+            onClick = {
+                GlobalScope.launch(Dispatchers.IO) {
                     val file = File(context.getExternalFilesDir(null), "test.h264")
                     decodeH264File(file.absolutePath, decoder!!)
-                }
+                }.start()
             },
             modifier = Modifier
                 .padding(Dimmen_8dp)
@@ -140,7 +167,10 @@ fun VideoPlayerScreen() {
             Text("解码本地文件")
         }
         H264PlayerView({ surface ->
-            decoder = H264Decoder(surface, 1920, 1080).apply {
+//            decoder = H264Decoder(surface, 1920, 1080).apply {
+//                startDecoder()
+//            }
+            decoder = H264Decoder(surface, 1280, 800).apply {
                 startDecoder()
             }
         }, { surface ->
@@ -152,16 +182,30 @@ fun VideoPlayerScreen() {
 
 /**
  * 开始解码文件
+ * @param filePath 文件路径
+ * @param decoder H264 解码器
+ * @param frameRate 视频帧率
  */
-fun decodeH264File(filePath: String, decoder: H264Decoder) {
+fun decodeH264File(filePath: String, decoder: H264Decoder, frameRate: Int = 25) {
     val file = File(filePath)
     val inputStream = FileInputStream(file)
-    val buffer = ByteArray(4096)
-
+    val buffer = ByteArray(1024 * 64)
+    // 计算两帧之间的时间间隔（毫秒）
+    val frameInterval = (1000.0 / frameRate).toLong()
+    var lastDecodeTime = System.currentTimeMillis()
     while (true) {
         val bytesRead = inputStream.read(buffer)
-        if (bytesRead == -1) break // 读取完成
+        if (bytesRead == -1) break // 读取完
+        // 计算需要延时的时间
+        val currentTime = System.currentTimeMillis()
+        val elapsedTime = currentTime - lastDecodeTime
+        if (elapsedTime < frameInterval) {
+            sleep(frameInterval - elapsedTime)
+        }
+        Log.d("maqi", "buffer[0]  :${buffer!!.size} ")
+        Log.d("maqi", "buffer[0]  ~buffer[10] ${ buffer[0]},${ buffer[1]},${ buffer[2]},${ buffer[3]}")
         decoder.decodeFrame(buffer, 0, bytesRead, System.nanoTime() / 1000)
+        lastDecodeTime = System.currentTimeMillis()
     }
     inputStream.close()
 }
@@ -181,9 +225,10 @@ fun H264PlayerView(onSurfaceAvailable: (Surface) -> Unit, onSurfaceDestroyed: (S
                     ) {
                         updateLayoutParams<ViewGroup.LayoutParams> {
                             width = resources.displayMetrics.widthPixels
-                            height = (1f * width / 1920 * 1080).toInt()
-                            Logger.d("maqi","width:"+width)
-                            Logger.d("maqi","height:"+height)
+//                            height = (1f * width / 1920 * 1080).toInt()
+                            height = (1f * width / 1280 * 800).toInt()
+                            Logger.d("maqi", "width:" + width)
+                            Logger.d("maqi", "height:" + height)
                         }
                         surface = Surface(surfaceTexture)
                         onSurfaceAvailable(surface!!)
@@ -194,8 +239,8 @@ fun H264PlayerView(onSurfaceAvailable: (Surface) -> Unit, onSurfaceDestroyed: (S
                         width: Int,
                         height: Int
                     ) {
-                        Logger.d("maqi","width:"+width)
-                        Logger.d("maqi","height:"+height)
+                        Logger.d("maqi", "width:" + width)
+                        Logger.d("maqi", "height:" + height)
                     }
 
                     override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture): Boolean {
@@ -207,7 +252,10 @@ fun H264PlayerView(onSurfaceAvailable: (Surface) -> Unit, onSurfaceDestroyed: (S
                 }
             }
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(Dimmen_20dp)
+            .wrapContentSize(Alignment.Center)
     )
 }
 
@@ -216,6 +264,6 @@ fun H264PlayerView(onSurfaceAvailable: (Surface) -> Unit, onSurfaceDestroyed: (S
 @Composable
 fun GreetingPreview() {
     QRtspClientTheme {
-        Greeting("Android")
+        Greeting()
     }
 }
